@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Download orders</title>
+  <style>
+    body {
+      padding: 50px 1rem;
+      margin: 0 auto;
+      max-width: 1000px;
+    }
+
+    #results {
+      font-size: 12px;
+      margin: 2rem 0;
+    }
+
+  </style>
+</head>
+
+<body>
+  <h1>Show Orders!</h1>
+  <a href="/download"
+     download>
+    Download PDF
+  </a>
+  <div id="results"></div>
+
+  <h4>Code used for HTML</h4>
+
+  <div
+       style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+    <pre style="margin: 0; line-height: 125%">  <span style="color: #007700">&lt;a</span> <span style="color: #0000CC">href=</span><span style="background-color: #fff0f0">&quot;/download&quot;</span>
+  <span style="color: #0000CC">download</span><span style="color: #007700">&gt;</span>
+  Download PDF
+<span style="color: #007700">&lt;/a&gt;</span>
+</pre>
+  </div>
+
+
+  <h4>Code used for Node.JS</h4>
+  <div
+       style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+    <pre style="margin: 0; line-height: 125%">
+      <span style="color: #008800; font-weight: bold">const</span> express <span style="color: #333333">=</span> require(<span style="background-color: #fff0f0">&#39;express&#39;</span>)
+  <span style="color: #008800; font-weight: bold">const</span> app <span style="color: #333333">=</span> express()
+  <span style="color: #008800; font-weight: bold">const</span> port <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">4000</span>;
+  
+  <span style="color: #008800; font-weight: bold">let</span> axios <span style="color: #333333">=</span> require(<span style="background-color: #fff0f0">&#39;axios&#39;</span>);
+  <span style="color: #008800; font-weight: bold">let</span> Fs <span style="color: #333333">=</span> require(<span style="background-color: #fff0f0">&#39;fs&#39;</span>);
+  <span style="color: #008800; font-weight: bold">let</span> Path <span style="color: #333333">=</span> require(<span style="background-color: #fff0f0">&#39;path&#39;</span>);
+  
+  app.get(<span style="background-color: #fff0f0">&#39;/&#39;</span>, (req, res) <span style="color: #333333">=&gt;</span> {
+    res.sendFile(Path.join(__dirname <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&#39;/index.html&#39;</span>));
+  })
+  
+  app.get(<span style="background-color: #fff0f0">&#39;/download&#39;</span>, async (req, res) <span style="color: #333333">=&gt;</span> {
+    await DownloadReport();
+    res.download(<span style="background-color: #fff0f0">&#39;./pdfs/Orders.pdf&#39;</span>)
+  })
+  
+  
+  async <span style="color: #008800; font-weight: bold">function</span> DownloadReport() {
+    <span style="color: #008800; font-weight: bold">const</span> data <span style="color: #333333">=</span> {
+      username<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;Demo&quot;</span>,
+      password<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;2020#demo!&quot;</span>,
+      reportId<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;17&quot;</span>,
+      apiEndpoint<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;http://northwind.netcore.io/query/orders.json?Freight&gt;=400&quot;</span>,
+      pathParameters<span style="color: #333333">:</span> [],
+      queryParameters<span style="color: #333333">:</span> [],
+      filename<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;Orders.pdf&quot;</span>,
+      exportType<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;pdf&quot;</span>
+    }
+  
+    <span style="color: #008800; font-weight: bold">const</span> url <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;https://connect.reportserver.eu/generate/file&#39;</span>
+    <span style="color: #008800; font-weight: bold">const</span> path <span style="color: #333333">=</span> Path.resolve(__dirname, <span style="background-color: #fff0f0">&#39;pdfs&#39;</span>, data.filename)
+    <span style="color: #008800; font-weight: bold">const</span> writer <span style="color: #333333">=</span> Fs.createWriteStream(path)
+  
+    <span style="color: #008800; font-weight: bold">const</span> response <span style="color: #333333">=</span> await axios({ url, data, method<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&#39;POST&#39;</span>, responseType<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&#39;stream&#39;</span> })
+  
+    response.data.pipe(writer)
+  
+    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #008800; font-weight: bold">new</span> Promise((resolve, reject) <span style="color: #333333">=&gt;</span> {
+      writer.on(<span style="background-color: #fff0f0">&#39;finish&#39;</span>, resolve)
+      writer.on(<span style="background-color: #fff0f0">&#39;error&#39;</span>, reject)
+    })
+  
+  }
+  
+  app.listen(port, () <span style="color: #333333">=&gt;</span> console.log(<span style="color: #333333; background-color: #fff0f0">`Example app listening at http://localhost:${port}</span>`))</span>
+  
+</pre>
+  </div>
+
+</body>
+<script>
+  createTable()
+
+  async function orders() {
+    return fetch(`http://northwind.netcore.io/query/orders.json?Freight>=400`)
+      .then((response) => {
+        return response.json()
+      })
+      .then(json => {
+        return json
+      })
+      .catch((err) => {
+        console.log('Fetch Error :-S', err);
+      });
+  }
+
+  async function createTable() {
+    const { results } = await orders();
+    jsonToTable(results, 'results')
+  }
+
+  function jsonToTable(json, selector) {
+    var html = [];
+    html.push("<table>\n<tbody>");
+    html.push("<tr>");
+    for (var propertyNames in json[0]) {
+      html.push("<th>" + propertyNames + "</td>");
+    }
+    html.push("</tr>");
+    json.forEach(function (item) {
+      html.push("<tr>");
+      for (var key in item) {
+        html.push("<td>" + item[key] + "</td>");
+      }
+      html.push("</tr>");
+    });
+    html.push("<table>\n</tbody>");
+    document.getElementById(selector).innerHTML = html.join("");
+  }
+
+</script>
+
+</html>
